@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["jail_create","Create a jail with a specific path"],["jail_getid","Get the `jid` of a jail given the name."],["jail_getname","Get the name of a jail given the jid"],["jail_remove","Remove a jail with the given `jid`."]],"struct":[["JailFlags",""]]});

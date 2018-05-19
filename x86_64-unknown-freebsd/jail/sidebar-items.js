@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["JailState",""]],"mod":[["process",""],["sys","This is the jail crate."]],"struct":[["RunningJail",""],["StoppedJail",""]]});

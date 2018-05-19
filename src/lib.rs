@@ -9,6 +9,9 @@ pub mod process;
 
 pub mod sys;
 
+#[macro_use]
+extern crate serde_derive;
+
 use std::io::{Error, ErrorKind};
 
 #[macro_use]
@@ -16,7 +19,7 @@ extern crate bitflags;
 
 use std::path;
 
-#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Serialize, Deserialize)]
 #[cfg(target_os = "freebsd")]
 pub struct StoppedJail {
     pub path: Option<path::PathBuf>,
@@ -24,7 +27,7 @@ pub struct StoppedJail {
     pub hostname: Option<String>,
 }
 
-#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Serialize, Deserialize)]
 #[cfg(target_os = "freebsd")]
 pub struct RunningJail {
     /// The `jid` of the jail
@@ -32,6 +35,7 @@ pub struct RunningJail {
 }
 
 #[cfg(target_os = "freebsd")]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash, Serialize, Deserialize)]
 pub enum JailState {
     Stopped(StoppedJail),
     Running(RunningJail),

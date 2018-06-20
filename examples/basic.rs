@@ -8,6 +8,8 @@ use jail::process::Jailed;
 fn main() {
     let mut stopped = jail::StoppedJail::new("/rescue")
         .name("example_basic")
+        .create_param("osreldate",param::Value::Int(1525749716))
+        .create_param("osrelease",param::Value::String("x86_64-GNU/Linux".to_string()))
         .ip("127.0.1.1".parse().expect("couldn't parse IP Addr"))
         .ip("fe80::2".parse().expect("couldn't parse IP Addr"))
         .param("allow.raw_sockets", param::Value::Int(1))

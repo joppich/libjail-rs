@@ -4,10 +4,12 @@ use std::ffi::{CStr, CString};
 use std::mem;
 use std::ptr;
 use std::str;
+use std::collections::HashMap;
 
 use std::path;
 
 use JailError;
+use param;
 
 macro_rules! iovec {
     ($value:expr, $size:expr) => {
@@ -50,6 +52,7 @@ bitflags! {
 #[cfg(target_os = "freebsd")]
 pub fn jail_create(
     path: &path::Path,
+    create_params: Option<HashMap<String,param::Value>>,
     name: Option<&str>,
     hostname: Option<&str>,
 ) -> Result<i32, JailError> {
@@ -62,6 +65,12 @@ pub fn jail_create(
         iovec!(b"persist\0"),
         iovec!(),
     ];
+
+    if let Some(create_params) = create_params {
+        for (key,value) in create_params {
+            println!("{},{:?}",key,value);
+        }
+    }
 
     if let Some(name) = name {
         jiov.push(iovec!(b"name\0"));

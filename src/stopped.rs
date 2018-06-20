@@ -17,6 +17,9 @@ pub struct StoppedJail {
     /// The jail name
     pub name: Option<String>,
 
+    /// A hashmap of parameters that need to be set at jail creation time
+    pub create_params: Option<HashMap<String,param::Value>>,
+
     /// The jail hostname
     pub hostname: Option<String>,
 
@@ -33,6 +36,7 @@ impl Default for StoppedJail {
         StoppedJail {
             path: None,
             name: None,
+            create_params: None,
             hostname: None,
             params: HashMap::new(),
             ips: vec![],
@@ -80,6 +84,7 @@ impl StoppedJail {
 
         let ret = sys::jail_create(
             &path,
+            self.create_params,
             self.name.as_ref().map(String::as_str),
             self.hostname.as_ref().map(String::as_str),
         ).map(RunningJail::from_jid)?;
@@ -153,6 +158,15 @@ impl StoppedJail {
         self
     }
 
+    /// Set jail-creation parameters
+    /// 
+    pub fn create_param<S: Into<String>>(mut self: Self, param: S, value: param::Value) -> Self {
+        if self.create_params == None {
+            self.create_params = Some(HashMap::new());
+        }
+        self.create_params.as_mut().map(|m| m.insert(param.into(),value));
+        self
+    }
     /// Set a jail parameter
     ///
     /// # Examples

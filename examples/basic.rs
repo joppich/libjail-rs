@@ -9,7 +9,7 @@ fn main() {
     let mut stopped = jail::StoppedJail::new("/rescue")
         .name("example_basic")
         .create_param("kern.osreldate",param::Value::String("1525749716".to_string()))
-        .create_param("kern.osrelease",param::Value::String("x86_64-GNU/Linux".to_string()))
+        .create_param("kern.osrelease",param::Value::String("11.1-RELEASE-p10".to_string()))
         .ip("127.0.1.1".parse().expect("couldn't parse IP Addr"))
         .ip("fe80::2".parse().expect("couldn't parse IP Addr"))
         .param("allow.raw_sockets", param::Value::Int(1))

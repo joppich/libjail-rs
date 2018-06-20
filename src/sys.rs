@@ -70,7 +70,7 @@ pub fn jail_create(
         for (key,value) in params {
             let key_prep = format!("{}\0", key);
             jiov.push(iovec!(key_prep.as_bytes()));
-            let valbuf = Cstring::new(value).unwrap();
+            let valbuf = CString::new(value).unwrap();
             let len = valbuf.as_bytes().len() + 1;
             jiov.push(iovec!(valbuf.into_bytes_with_nul().as_ptr(), len));
             }

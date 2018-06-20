@@ -34,7 +34,7 @@ impl Default for StoppedJail {
             path: None,
             name: None,
             hostname: None,
-            params: None,
+            params: HashMap::new(),
             ips: vec![],
         }
     }
@@ -80,7 +80,7 @@ impl StoppedJail {
 
         let ret = sys::jail_create(
             &path,
-            self.params,
+            Some(self.params),
             self.name.as_ref().map(String::as_str),
             self.hostname.as_ref().map(String::as_str),
         ).map(RunningJail::from_jid)?;
@@ -167,10 +167,7 @@ impl StoppedJail {
     ///     .param("allow.raw_sockets", param::Value::Int(1));
     /// ```
     pub fn param<S: Into<String>>(mut self: Self, param: S, value: param::Value) -> Self {
-        if self.params.is_none() {
-            self.params = Some(HashMap::new());
-        }
-        self.params.as_mut().map(|m| m.insert(param.into(),value));
+        self.params.insert(param.into(),value);
         self
     }
 

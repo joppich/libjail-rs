@@ -52,7 +52,7 @@ bitflags! {
 #[cfg(target_os = "freebsd")]
 pub fn jail_create(
     path: &path::Path,
-    create_params: Option<HashMap<String,param::Value>>,
+    params: Option<HashMap<String,param::Value>>,
     name: Option<&str>,
     hostname: Option<&str>,
 ) -> Result<i32, JailError> {
@@ -66,10 +66,11 @@ pub fn jail_create(
         iovec!(),
     ];
 
-    if let Some(create_params) = create_params {
-        for (key,value) in create_params {
-            jiov.push(iovec!(key.as_bytes()));
-            let valbuf = CString::new(value.unpack_string().unwrap()).unwrap();
+    if let Some(params) = params {
+        for (key,value) in params {
+            let key_prep = format!("{}\0", key);
+            jiov.push(iovec!(key_prep.as_bytes()));
+            let valbuf = Cstring::new(value).unwrap();
             let len = valbuf.as_bytes().len() + 1;
             jiov.push(iovec!(valbuf.into_bytes_with_nul().as_ptr(), len));
             }

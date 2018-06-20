@@ -446,6 +446,57 @@ impl Value {
     }
 }
 
+impl Into<Vec<u8>> for Value {
+    fn into(self) -> Vec<u8> {
+        let mut bytes: Vec<u8> = vec![];
+            // Some conversions are identity on 64 bit, but not on 32 bit and vice versa
+        #[allow(identity_conversion)]
+        match self {
+            Value::String(s) => {
+                bytes = CString::new(s)
+                    .expect("Could not create CString from value")
+                    .to_bytes_with_nul()
+                    .to_vec();
+                Ok(())
+            }
+            Value::U8(v) => bytes.write_u8(v),
+            Value::S8(v) => bytes.write_i8(v),
+            Value::U16(v) => bytes.write_u16::<LittleEndian>(v),
+            Value::U32(v) => bytes.write_u32::<LittleEndian>(v),
+            Value::U64(v) => bytes.write_u64::<LittleEndian>(v),
+            Value::S16(v) => bytes.write_i16::<LittleEndian>(v),
+            Value::S32(v) => bytes.write_i32::<LittleEndian>(v),
+            Value::S64(v) => bytes.write_i64::<LittleEndian>(v),
+            Value::Int(v) => bytes.write_int::<LittleEndian>(v.into(), mem::size_of::<libc::c_int>()),
+            Value::Long(v) => bytes.write_int::<LittleEndian>(v.into(), mem::size_of::<libc::c_long>()),
+            Value::Uint(v) => {
+                bytes.write_uint::<LittleEndian>(v.into(), mem::size_of::<libc::c_uint>())
+            }
+            Value::Ulong(v) => {
+                bytes.write_uint::<LittleEndian>(v.into(), mem::size_of::<libc::c_ulong>())
+            }
+            Value::Ipv4Addrs(addrs) => {
+                for addr in addrs {
+                    let s_addr = nix::sys::socket::Ipv4Addr::from_std(&addr).0.s_addr;
+                    let host_u32 = u32::from_be(s_addr);
+                    bytes
+                        .write_u32::<NetworkEndian>(host_u32)
+                        .map_err(|_| JailError::SerializeFailed);
+                }
+                Ok(())
+            }
+            Value::Ipv6Addrs(addrs) => {
+                for addr in addrs {
+                    bytes.extend_from_slice(&addr.octets());
+                }
+                Ok(())
+            }
+        }.map_err(|_| JailError::SerializeFailed);
+    bytes
+    }
+}
+
+
 #[cfg(target_os = "freebsd")]
 fn info(name: &str) -> Result<(CtlType, usize), JailError> {
     // Get parameter type

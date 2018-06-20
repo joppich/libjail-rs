@@ -161,7 +161,7 @@ impl StoppedJail {
     /// Set jail-creation parameters
     /// 
     pub fn create_param<S: Into<String>>(mut self: Self, param: S, value: param::Value) -> Self {
-        if self.create_params == None {
+        if self.create_params.is_none() {
             self.create_params = Some(HashMap::new());
         }
         self.create_params.as_mut().map(|m| m.insert(param.into(),value));

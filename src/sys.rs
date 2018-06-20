@@ -68,8 +68,11 @@ pub fn jail_create(
 
     if let Some(create_params) = create_params {
         for (key,value) in create_params {
-            println!("{},{:?}",key,value);
-        }
+            jiov.push(iovec!(key.as_bytes()));
+            let valbuf = CString::new(value.unpack_string().unwrap()).unwrap();
+            let len = valbuf.as_bytes().len() + 1;
+            jiov.push(iovec!(valbuf.into_bytes_with_nul().as_ptr(), len));
+            }
     }
 
     if let Some(name) = name {

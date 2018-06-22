@@ -80,7 +80,7 @@ impl StoppedJail {
 
         let ret = sys::jail_create(
             &path,
-            Some(self.params),
+            &self.params,
             self.name.as_ref().map(String::as_str),
             self.hostname.as_ref().map(String::as_str),
         ).map(RunningJail::from_jid)?;
@@ -110,11 +110,6 @@ impl StoppedJail {
 
         param::set(ret.jid, "ip4.addr", ip4s)?;
         param::set(ret.jid, "ip6.addr", ip6s)?;
-
-        // Set remaining parameters <<----------------Not sure if this is still needed
-        //for (param, value) in self.params {
-        //    param::set(ret.jid, &param, value)?;
-        //}
 
         Ok(ret)
     }

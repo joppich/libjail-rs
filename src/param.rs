@@ -9,6 +9,7 @@ use std::iter::FromIterator;
 use std::mem;
 use std::net;
 use std::slice;
+use std::convert::TryInto;
 
 use sys::JailFlags;
 use JailError;
@@ -235,6 +236,7 @@ pub enum Value {
     S16(i16),
     S32(i32),
     U32(u32),
+    JailError,
 
     /// Represent a list of IPv4 addresses.
     ///
@@ -444,12 +446,16 @@ impl Value {
             _ => Err(JailError::ParameterUnpackError),
         }
     }
+
+    pub fn as_bytes(self) -> Vec<u8> {
+        self.clone().try_into()
+    }
 }
 
-impl Into<Vec<u8>> for Value {
-    fn into(self) -> Vec<u8> {
+impl TryInto<Result<Vec<u8>, Error>> for Value {
+    fn try_into(self) -> Result<Vec<u8>, JailError> {
         let mut bytes: Vec<u8> = vec![];
-            // Some conversions are identity on 64 bit, but not on 32 bit and vice versa
+        // Some conversions are identity on 64 bit, but not on 32 bit and vice versa
         #[allow(identity_conversion)]
         match self {
             Value::String(s) => {
@@ -483,7 +489,6 @@ impl Into<Vec<u8>> for Value {
                         .write_u32::<NetworkEndian>(host_u32)
                         .map_err(|_| JailError::SerializeFailed);
                 }
-                Ok(())
             }
             Value::Ipv6Addrs(addrs) => {
                 for addr in addrs {
@@ -492,7 +497,9 @@ impl Into<Vec<u8>> for Value {
                 Ok(())
             }
         }.map_err(|_| JailError::SerializeFailed);
-    bytes
+    
+        Ok(bytes)
+
     }
 }
 
